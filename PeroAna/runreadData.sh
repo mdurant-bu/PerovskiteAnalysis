@@ -78,7 +78,7 @@ cd src/ || exit; # executable is here
 
     
 # Run the compiled program with the input and output file names
-echo "Converting the raw data in to a rootfile. The following command is exected: "
+echo "Converting the raw data in to a rootfile. The following command is executed: "
 command="./readData $input_dir/$input_file $rootfile_path"
 echo $command
 echo ""
