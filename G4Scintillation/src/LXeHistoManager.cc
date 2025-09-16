@@ -44,6 +44,8 @@ LXeHistoManager::LXeHistoManager() : fFileName("lxe")
 
 void LXeHistoManager::Book()
 {
+  //fRootFile = new TFile("myhistos.root", "UPDATE");  // "UPDATE" mode to keep existing content
+
   // Create or get analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   analysisManager->SetDefaultFileType("root");
@@ -84,8 +86,8 @@ void LXeHistoManager::Book()
   analysisManager->CreateH1("Interaction Types", "types of interactions of incident radiation", 6, vmin,
                             6); 
   // 10
-  analysisManager->CreateH1("Photoelectric Depth", "depth of photoelectric effect interactions", 40, -3,
-                            3);
+  analysisManager->CreateH1("Photoelectric Depth", "depth of photoelectric effect interactions", 80, -2,
+                            2);
   // 11
   analysisManager->CreateH1("Generated to Detected", "ratio of detected photons to generated photons", 100, vmin,
                             1);
@@ -104,7 +106,7 @@ void LXeHistoManager::Book()
   // 1
   analysisManager->CreateH2("Depth and Production", "Interaction Depth vs Number of Photons Produced", 50, -3, 3, nbins, vmin, 
                             vmax);
-// 2
+  // 2
   analysisManager->CreateH2("Depth and Edep", "Interaction Depth vs Energy Deposition", 50, -3, 3, nbins, vmin, 
                             vmax);
   // Create all histograms as activated
@@ -112,3 +114,23 @@ void LXeHistoManager::Book()
     analysisManager->SetH1Activation(i, true);
   }
 }
+
+/*void LXeHistoManager::SaveCrossSectionGraph(const std::vector<double>& energies,
+                                            const std::vector<double>& crossSections,
+                                            const std::string& name)
+{
+  if (!fRootFile || !fRootFile->IsOpen()) {
+    G4cerr << "ROOT file not open! Cannot save TGraph." << G4endl;
+    return;
+  }
+  fRootFile->cd();
+
+  TGraph* graph = new TGraph(energies.size(), energies.data(), crossSections.data());
+  graph->SetTitle(Form("%s;Energy (MeV);Cross Section (barns)", name.c_str()));
+  graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(1);
+  graph->SetLineColor(kBlue);
+  graph->Write(name.c_str());
+
+  delete graph;
+}*/

@@ -108,17 +108,29 @@ void LXeDetectorConstruction::DefineMaterials()
   fO = new G4Element("O", "O", z = 8., a = 16.00 * g / mole);
   fPb = new G4Element("Pb", "Pb", z = 82., a = 207.2 * g / mole);
   fBr = new G4Element("Br", "Br", z = 35., a = 79.90 * g / mole);
-  fSi = new G4Element("Si", "Si", z = 14, a = 28.09 * g / mole);
+  fSi = new G4Element("Si", "Si", z = 14., a = 28.09 * g / mole);
+  fCs = new G4Element("Cs", "Cs", z = 55., a = 132.91 * g / mole);
 
   //***Materials
   // Crystal - MAPbBr3 CH3NH3PbBr3
-  fPer = new G4Material("LXe", density = 3.83 * g / cm3, ncomponents = 6);
+  /*fPer = new G4Material("LXe", density = 3.83 * g / cm3, ncomponents = 6);
   fPer->AddElement(fC,  natoms=1);
   fPer->AddElement(fH,  natoms=3);
   fPer->AddElement(fN,  natoms=1);
   fPer->AddElement(fH,  natoms=3);
   fPer->AddElement(fPb, natoms=1);
+  fPer->AddElement(fBr, natoms=3);*/
+
+  // Crystal - CsPbBr3
+  fPer = new G4Material("LXe", density = 4.75 * g / cm3, ncomponents = 3);
+  fPer->AddElement(fCs,  natoms=1);
+  fPer->AddElement(fPb, natoms=1);
   fPer->AddElement(fBr, natoms=3);
+
+  // Plastic Scintillator - Polyvinyltoluene (PVT) [CH2CH(C6H4CH3)]n
+  /*fPVT = new G4Material("LXe", density = 1.032 * g / cm3, ncomponents = 2);
+  fPVT->AddElement(fC, natoms=9);
+  fPVT->AddElement(fH, natoms=10);*/
 
   // Coating - Polydimethylsiloxane (PDMS) CH3[Si(CH3)2O]nSi(CH3)3
   fPDMS = new G4Material("PDMS", density = 0.965 * g / cm3, ncomponents = 4);
@@ -129,13 +141,15 @@ void LXeDetectorConstruction::DefineMaterials()
 
   // Gold 
   fAg = new G4Material("Ag", z = 79., a = 196.97 * g / mole, density = 19.3 * g/ cm3);
-
+  //Lead
+  //fLead = new G4Material("LXe", z = 82, a = 207.2 * g / mole, density = 11.34 * g / cm3);
   // Liquid Xenon
   fLXe = fPer; //new G4Material("LXe", z = 54., a = 131.29 * g / mole, density = 3.020 * g / cm3);
   // Aluminum
   fAl = new G4Material("Al", z = 13., a = 26.98 * g / mole, density = 2.7 * g / cm3);
-  // Silicon
+  // Silicon Photo Multipliers
   fSiPM = new G4Material("Si", z = 14., a = 28.0855 * g / mole, density = 2.33 * g / cm3);
+  fSiPM_top = new G4Material("Si_top", z = 14., a = 28.0855 * g / mole, density = 2.33 * g / cm3);
   // Vacuum
   fVacuum = new G4Material("Vacuum", z = 1., a = 1.01 * g / mole, density = universe_mean_density,
                            kStateGas, 0.1 * kelvin, 1.e-19 * pascal);

@@ -76,14 +76,14 @@ LXeMainVolume::LXeMainVolume(G4RotationMatrix* pRot, const G4ThreeVector& tlate,
   fScint_log->SetVisAttributes(envVisAttr);
   
   // Define SiPM dimensions (half thickness)
-  G4double sipmThickness = 0.68 * mm;
+  G4double sipmThickness = 0.25 * mm;
   G4double sipmLength = 6.02 * mm;
   G4double sipmWidth = 6.03 * mm;
 
   G4double pocketThickness = 0.01 * mm;
 
   // Coating and Gold foil
-  G4double pdms_thickness = 1.0 * mm;
+  G4double pdms_thickness = 0.5 * mm;
   G4double pdms_x = fScint_x + pdms_thickness;
   G4double pdms_y = fScint_y + pdms_thickness;
   G4double pdms_z = fScint_z + 2 * sipmThickness; //+ 2 * pdms_thickness;
@@ -119,10 +119,18 @@ LXeMainVolume::LXeMainVolume(G4RotationMatrix* pRot, const G4ThreeVector& tlate,
   // Define SiPM solid and logical volume
   fSipm_box = new G4Box("SiPM_solid", sipmLength/2, sipmWidth/2, sipmThickness/2);
   fSipm_log = new G4LogicalVolume(fSipm_box, G4Material::GetMaterial("Si"), "SiPM_log");
-  G4VisAttributes* greenVisAttr = new G4VisAttributes(G4Colour(0.0, 0.5, 0.0, 0.9));
-  greenVisAttr->SetVisibility(true);
-  greenVisAttr->SetForceSolid(true);
-  fSipm_log->SetVisAttributes(greenVisAttr);
+  G4VisAttributes* SiPMVisAttr = new G4VisAttributes(G4Colour(0.0, 0.5, 0.0, 0.9));
+  SiPMVisAttr->SetVisibility(true);
+  SiPMVisAttr->SetForceSolid(true);
+  fSipm_log->SetVisAttributes(SiPMVisAttr);
+
+  fSipm_top_box = new G4Box("SiPM_top_solid", sipmLength/2, sipmWidth/2, sipmThickness/2);
+  fSipm_top_log = new G4LogicalVolume(fSipm_top_box, G4Material::GetMaterial("Si_top"), "SiPM_top_log");
+  //G4VisAttributes* SiPMTopVisAttr = new G4VisAttributes(G4Colour(0.0, 0.5, 0.0, 0.9));
+  //SiPMTopVisAttr->SetVisibility(true);
+  //SiPMTopVisAttr->SetForceSolid(true);
+  fSipm_top_log->SetVisAttributes(SiPMVisAttr);
+
 
   // Define Air pocket btwn SiPM and Crystal
   auto fPocket_box = new G4Box("Pocket_solid", sipmLength/2, sipmWidth/2, pocketThickness/2);
@@ -139,10 +147,41 @@ LXeMainVolume::LXeMainVolume(G4RotationMatrix* pRot, const G4ThreeVector& tlate,
   G4double sipmPosZ = 1.36 * mm + sipmThickness / 2;
   auto sipmPhysical = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, sipmPosZ), fSipm_log, "SiPM", fPDMS_log, false, 0);
 
+  G4double sipmTopPosZ = -2.11 * mm + sipmThickness / 2;
+  auto sipmTopPhysical = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, sipmTopPosZ), fSipm_top_log, "SiPM_top", fHousing_log, false, 0);
+
   // Position Air Pocket right between crystal and SiPM
   G4double pocketPosZ = 1.355 * mm; //1.36 * mm + pocketThickness / 2;
   auto pocketPhysical = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, pocketPosZ), fPocket_log, "Pocket", fScint_log, false, 0);
 
+  // Add Ruler
+  G4double tickSize = 0.1 * mm;   // Small cube to mark a millimeter
+  G4int numTicks = 8;           // Adjust as needed
+  G4double zStart = -4.0 * mm;     // Starting z-position
+  G4double zSpacing = 1.0 * mm;   // 1 mm spacing
+  G4double xPos = -5.0 * mm;
+  G4double yPos = -5.0 * mm;
+
+  tick_box = new G4Box("tick_box", tickSize / 2, tickSize / 2, tickSize / 2);
+  tick_log = new G4LogicalVolume(tick_box, G4Material::GetMaterial("Vacuum"), "tick_log");
+
+  auto tickVis = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0)); // blue
+  tickVis->SetForceSolid(true);
+  tick_log->SetVisAttributes(tickVis);
+
+  for (int i = 0; i < numTicks; ++i) {
+    G4double z = zStart + i * zSpacing;
+    new G4PVPlacement(
+      nullptr,
+      G4ThreeVector(xPos, yPos, z),
+      tick_log,
+      "tickPV",
+      fHousing_log,
+      false,
+      i,
+      false
+    );
+  }
 
   //*************** Miscellaneous sphere to demonstrate skin surfaces
   fSphere = new G4Sphere("sphere", 0., 2. * cm, 0. * deg, 360. * deg, 0. * deg, 360. * deg);

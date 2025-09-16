@@ -97,7 +97,6 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
 
   if (theTrack->GetParentID() == 0) {
-    // This is a primary track
     auto secondaries = theStep->GetSecondaryInCurrentStep();
     // If we haven't already found the conversion position and there were
     // secondaries generated, then search for it
@@ -129,36 +128,46 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
   const G4ParticleDefinition* particle = theTrack->GetDefinition();
   if (particle == G4Gamma::Definition()) {
+        // This is a primary track
+    auto analysisManager = G4AnalysisManager::Instance();
     if (thePrePV->GetName() == "scintillator"){
       G4String procName = thePostPoint->GetProcessDefinedStep()->GetProcessName();
       G4int binIndex = -1;
       G4double edep = theStep->GetTotalEnergyDeposit();
-      if (edep > 0.) {
+      G4double z = thePostPoint->GetPosition().z();
+      //if (edep > 0.) {
+      if (procName != "Transportation") {
         const G4VProcess* process = thePostPoint->GetProcessDefinedStep();
-        if (process) {
-          if (procName == "compt") { 
-            binIndex = 0;            // Compton scattering
-          }
-          else if (procName == "Rayl") {
-            binIndex = 1;            // Rayleigh scattering
-          }
-          else if (procName == "phot") {
-            binIndex = 2;            // photoelectric effect
-          }
-          else if (procName == "conv") {
-            binIndex = 3;            // pair production
-          }
-          else if (procName == "eIoni") {
-            binIndex = 4;            // electron ionization
-          }
-          else if (procName == "Transportation") {
-            binIndex = -2;           // transportation
-          }
-          else binIndex = 5;                                 // Misc
-          if (binIndex >= 0) { // skip Transportation and unclassified
-            auto analysisManager = G4AnalysisManager::Instance();
-            analysisManager->FillH1(9, binIndex);
-            analysisManager->FillH2(0, edep * 1000., binIndex);
+        if (!fEventAction->GetRecordedIntDepth()) {
+          fEventAction->SetRecordedIntDepth(true);
+          fEventAction->SetFirstGammaIntDepth(z);
+          if (process) {
+            if (procName == "compt") { 
+              binIndex = 0;            // Compton scattering
+            }
+            else if (procName == "Rayl") {
+              binIndex = 1;            // Rayleigh scattering
+            }
+            else if (procName == "phot") {
+              binIndex = 2;            // photoelectric effect
+              G4double z = thePostPoint->GetPosition().z();
+              analysisManager->FillH1(10, z);
+            }
+            else if (procName == "conv") {
+              binIndex = 3;            // pair production
+            }
+            else if (procName == "eIoni") {
+              binIndex = 4;            // electron ionization
+            }
+            else if (procName == "Transportation") {
+              binIndex = -2;           // transportation
+            }
+            else binIndex = 5;                                 // Misc
+            if (binIndex >= 0) { // skip Transportation and unclassified
+              analysisManager->FillH1(9, binIndex);
+              analysisManager->FillH2(0, edep * 1000., binIndex);
+              analysisManager->FillH2(2, z, edep * 1000); 
+            }
           }
         }
       }
@@ -167,6 +176,7 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
 
   // Optical photon only
   if (theTrack->GetDefinition() == G4OpticalPhoton::Definition()) { // changed from pdg == -22
+    auto analysisManager = G4AnalysisManager::Instance();
     if (thePrePV->GetName() == "Slab") {
       // force drawing of photons in WLS slab
       trackInformation->SetForceDrawTrajectory(true);
@@ -230,7 +240,6 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
           trackInformation->AddTrackStatusFlag(hitSiPM); // was hitPMT
           G4double photonEnergy = theTrack->GetTotalEnergy();
           //G4double photonEnergy = theStep->GetPreStepPoint()->GetKineticEnergy();
-          auto analysisManager = G4AnalysisManager::Instance();
           analysisManager->FillH1(13, photonEnergy * 1000000.);
           //G4cout << "\tPhoton energy: " << photonEnergy << G4endl;
           break;
@@ -252,25 +261,26 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
   
   // Record depth of first interaction in scintillator
-  //const G4ParticleDefinition* particle = theTrack->GetDefinition();
+  /*//const G4ParticleDefinition* particle = theTrack->GetDefinition();
   if (particle == G4Gamma::Definition()) {
-    G4String procName = thePostPoint->GetProcessDefinedStep()->GetProcessName();
-    if (procName == "phot"){
-      G4double z = theStep->GetPreStepPoint()->GetPosition().z();
-      G4AnalysisManager::Instance()->FillH1(10, z);
-    }
+    auto analysisManager = G4AnalysisManager::Instance();
     if (!fEventAction->GetRecordedIntDepth()) {
       //if (thePrePV->GetName() == "scintillator") {
-        const G4VProcess* process = theStep->GetPostStepPoint()->GetProcessDefinedStep();
+        //const G4VProcess* process = thePostPoint->GetProcessDefinedStep();
         G4double edep = theStep->GetTotalEnergyDeposit();
-        if (edep > 0) {
-          G4double z = theStep->GetPreStepPoint()->GetPosition().z();
+        G4String procName = thePostPoint->GetProcessDefinedStep()->GetProcessName();
+      if (procName == "phot"){
+        G4double z = thePostPoint->GetPosition().z();
+        analysisManager->FillH1(10, z);
+        //if (edep > 0) {
+          //G4double z = thePrePoint->GetPosition().z();
           //G4cout << "\tInteraction Depth: " << z << G4endl;
           //G4cout << "\tInteraction type: " << procName << G4endl;
+          //G4cout << "Got a Photoelectric Effect!" << G4endl;
           fEventAction->SetFirstGammaIntDepth(z);
-          fEventAction->SetRecordedIntDepth(true);
-          G4AnalysisManager::Instance()->FillH2(2, z, edep); 
-        }
+          //fEventAction->SetRecordedIntDepth(true);
+        //}
+      }
       //if (thePrePV->GetName() == "pdms_phys") {
       //  G4double z = 8.;
       //  fEventAction->SetFirstGammaIntDepth(z + 1.36);
@@ -278,5 +288,5 @@ void LXeSteppingAction::UserSteppingAction(const G4Step* theStep)
       //}
       //}
     }
-  }
+  }*/
 }

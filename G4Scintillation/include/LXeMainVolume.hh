@@ -82,6 +82,8 @@ class LXeMainVolume : public G4PVPlacement
     G4Box* fPDMS_box = nullptr;
     G4Box* fAg_Box = nullptr;
     G4Box* fSipm_box = nullptr;
+    G4Box* fSipm_top_box = nullptr;
+    G4Box* tick_box = nullptr;
     G4Tubs* fPmt = nullptr;
     G4Box* fPhotocath = nullptr; //from G4Tubs
     G4Sphere* fSphere = nullptr;
@@ -96,6 +98,8 @@ class LXeMainVolume : public G4PVPlacement
     G4LogicalVolume* fPhotocath_log = nullptr;
     G4LogicalVolume* fSphere_log = nullptr;
     G4LogicalVolume* fSipm_log = nullptr;
+    G4LogicalVolume* fSipm_top_log = nullptr;
+    G4LogicalVolume* tick_log = nullptr;
 
     // Sensitive Detectors positions
     std::vector<G4ThreeVector> fPmtPositions;

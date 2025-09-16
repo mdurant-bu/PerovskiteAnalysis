@@ -11,9 +11,10 @@
 #/vis/enable
 
 #Force draw photons 
+/LXe/forceDrawPhotons false
 #/LXe/forceDrawPhotons true
 
 #Shoot x number of x particle at x amount of energy
 /gun/particle gamma
-/gun/energy 662 keV
+/gun/energy 500 keV
 /run/beamOn 100000

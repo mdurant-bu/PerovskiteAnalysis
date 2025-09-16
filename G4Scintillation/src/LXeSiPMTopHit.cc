@@ -23,46 +23,49 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file optical/LXe/include/LXeHistoManager.hh
-/// \brief Definition of the LXeHistoManager class
+//
+/// \file optical/LXe/src/LXeSiPMHit.cc
+/// \brief Implementation of the LXeSiPMHit class
 //
 //
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#include "LXeSiPMHit.hh"
 
-#ifndef LXeHistoManager_h
-#define LXeHistoManager_h 1
+#include "G4Colour.hh"
+#include "G4LogicalVolume.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VVisManager.hh"
+#include "G4VisAttributes.hh"
+#include "G4ios.hh"
 
-#include "G4AnalysisManager.hh"
-#include "globals.hh"
-
-/*#include "TFile.h"
-#include "TGraph.h"
-
-#include <vector>
-#include <string>*/
+G4ThreadLocal G4Allocator<LXeSiPMHit>* LXeSiPMHitAllocator = nullptr;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class LXeHistoManager
+LXeSiPMHit::LXeSiPMHit(G4VPhysicalVolume* pVol) : fPhysVol(pVol) {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+LXeSiPMHit::LXeSiPMHit(const LXeSiPMHit& right) : G4VHit()
 {
-  public:
-    LXeHistoManager();
-    ~LXeHistoManager() = default;
-
-    /*void SaveCrossSectionGraph(const std::vector<double>& energies,
-                               const std::vector<double>& crossSections,
-                               const std::string& name);
-    void CloseRootFile();*/
-
-  private:
-    void Book();
-    G4String fFileName;
-
-    //TFile* fRootFile;
-};
+  fSiPMEdep = right.fSiPMEdep;
+  fPhotonCount = right.fPhotonCount;
+  fPhysVol = right.fPhysVol;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif
+const LXeSiPMHit& LXeSiPMHit::operator=(const LXeSiPMHit& right)
+{
+  fSiPMEdep = right.fSiPMEdep;
+  fPhotonCount = right.fPhotonCount;
+  fPhysVol = right.fPhysVol;
+  return *this;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4bool LXeSiPMHit::operator==(const LXeSiPMHit&) const
+{
+  return false;
+  // returns false because there currently isn't need to check for equality
+}

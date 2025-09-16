@@ -101,6 +101,10 @@ class LXeDetectorConstruction : public G4VUserDetectorConstruction
     void SetMainScintYield(G4double);
     void SetWLSScintYield(G4double);
 
+    G4Material* GetPerMaterial() const { return fPer; }
+    G4Material* GetLeadMaterial() const { return fLead; }
+    G4Material* GetPVTMaterial() const { return fPVT; }
+
   private:
     void DefineMaterials();
 
@@ -118,12 +122,16 @@ class LXeDetectorConstruction : public G4VUserDetectorConstruction
     G4Element* fPb = nullptr;
     G4Element* fBr = nullptr;
     G4Element* fSi = nullptr;
+    G4Element* fCs = nullptr;
     G4Material* fLXe = nullptr;
     G4Material* fPer = nullptr;
     G4Material* fPDMS = nullptr;
+    G4Material* fPVT = nullptr;
     G4Material* fAg = nullptr;
     G4Material* fAl = nullptr;
     G4Material* fSiPM = nullptr;
+    G4Material* fSiPM_top = nullptr;
+    G4Material* fLead = nullptr;
     G4Material* fAir = nullptr;
     G4Material* fVacuum = nullptr;
     G4Material* fGlass = nullptr;
